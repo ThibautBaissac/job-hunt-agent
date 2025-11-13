@@ -1,0 +1,40 @@
+{
+  "name": "Job Hunt Agent",
+  "dockerComposeFile": "compose.yaml",
+  "service": "workspace",
+  "workspaceFolder": "/workspace",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "charliermarsh.ruff",
+        "Shopify.ruby-lsp"
+      ],
+      "settings": {
+        // Configuration Python
+        "python.defaultInterpreterPath": "${workspaceFolder}/python_services/api/.venv/bin/python",
+        "python.terminal.activateEnvironment": true,
+        // Linting
+        "python.linting.enabled": true,
+        "python.linting.ruffEnabled": true,
+        // Formatting
+        "[python]": {
+          "editor.defaultFormatter": "charliermarsh.ruff",
+          "editor.formatOnSave": true,
+          "editor.codeActionsOnSave": {
+            "source.organizeImports": true
+          }
+        }
+      }
+    }
+  },
+  "forwardPorts": [
+    3000,
+    8001,
+    5432
+  ],
+  // Setup automatique au démarrage du container
+  "postCreateCommand": "bash -c 'cd rails_app && bundle install && cd ../python_services/api && bin/setup'",
+  "remoteUser": "vscode"
+}

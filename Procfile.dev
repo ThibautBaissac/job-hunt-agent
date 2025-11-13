@@ -1,0 +1,3 @@
+rails: cd rails_app && bin/dev
+agent_api: bash -c 'cd python_services && source api/.venv/bin/activate && uvicorn agent_api.main:app --reload --port 8001'
+scraper_api: bash -c 'cd python_services && source api/.venv/bin/activate && uvicorn scraper_api.main:app --reload --port 8002'

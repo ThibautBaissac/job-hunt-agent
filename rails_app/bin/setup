@@ -12,8 +12,20 @@ FileUtils.chdir APP_ROOT do
   # This script is idempotent, so that you can run it at any time and get an expectable outcome.
   # Add necessary setup steps to this file.
 
-  puts "== Installing dependencies =="
+  puts "== Checking PostgreSQL =="
+  unless system("sudo service postgresql status > /dev/null 2>&1")
+    puts "Starting PostgreSQL..."
+    system!("sudo service postgresql start")
+  end
+
+  puts "\n== Installing dependencies =="
   system("bundle check") || system!("bundle install")
+
+  # Check for foreman gem (needed to run bin/dev)
+  unless system("gem list -i foreman > /dev/null 2>&1")
+    puts "Installing foreman gem..."
+    system!("gem install foreman")
+  end
 
   # puts "\n== Copying sample files =="
   # unless File.exist?("config/database.yml")

@@ -3,7 +3,7 @@
 ```
 job-hunt-agent/
 ├── README.md
-├── docker-compose.yml              # optionnel mais recommandé
+├── Procfile.dev                    # Foreman config pour démarrer tous les services
 ├── .env                            # variables de dev (non commit)
 │
 ├── rails_app/                      # ton app principale
@@ -13,30 +13,33 @@ job-hunt-agent/
 │   └── ...
 │
 └── python_services/                # tout ce qui est "agent" & scraping
-    ├── agent_api/                  # service HTTP d'orchestration IA (LangChain etc.)
-    │   ├── pyproject.toml / requirements.txt
-    │   ├── agent_api/
-    │   │   ├── __init__.py
-    │   │   ├── main.py             # FastAPI/Flask entrypoint
-    │   │   ├── routers/
-    │   │   │   ├── agent.py        # /agent/job_application
-    │   │   └── core/
-    │   │       ├── chains.py       # définition LangChain
-    │   │       └── models.py       # schémas Pydantic pour les payloads
-    │   └── ...
+    ├── api/                        # dépendances Python partagées
+    │   ├── .venv/                  # environnement virtuel partagé
+    │   ├── requirements.txt        # toutes les dépendances Python
+    │   ├── pyproject.toml
+    │   └── .python-version         # Python 3.13+
     │
-    └── scraper_api/                # service HTTP Playwright (ou intégré au même)
-        ├── pyproject.toml / requirements.txt
-        ├── scraper_api/
-        │   ├── __init__.py
-        │   ├── main.py             # /scrape/offer
-        │   ├── playwright_client.py
-        │   └── parsers/
-        │       ├── linkedin.py
-        │       └── wttj.py
-        └── ...
+    ├── agent_api/                  # service HTTP d'orchestration IA (LangChain etc.)
+    │   ├── __init__.py
+    │   ├── main.py                 # FastAPI app (port 8001)
+    │   ├── routers/
+    │   │   └── __init__.py
+    │   └── core/
+    │       ├── __init__.py
+    │       ├── chains.py           # définition LangChain
+    │       └── models.py           # schémas Pydantic pour les payloads
+    │
+    └── scraper_api/                # service HTTP Playwright
+        ├── __init__.py
+        ├── main.py                 # FastAPI app (port 8002)
+        └── parsers/
+            ├── __init__.py
+            ├── linkedin.py
+            └── wttj.py
 
 ```
+
+**Note sur la structure Python**: Les deux services (`agent_api` et `scraper_api`) partagent le même environnement virtuel situé dans `python_services/api/.venv`. Cela évite la duplication des dépendances (FastAPI, Pydantic, LangChain, Playwright, etc.) tout en gardant les services modulaires.
 
 ---
 
@@ -138,7 +141,46 @@ KISS :`Faraday`
 
 ---
 
-## 4. docker-compose (optionnel mais très pratique)
+## 4. Démarrage en local
+
+### 4.1. Installation des dépendances Python
+
+```bash
+cd python_services/api
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+playwright install  # Installe les navigateurs (Chromium, Firefox, Webkit)
+```
+
+**Versions requises** :
+- Python 3.13+
+- FastAPI >= 0.115
+- Pydantic >= 2.10
+- LangChain >= 0.3
+- Playwright >= 1.48
+
+### 4.2. Démarrage de tous les services
+
+Depuis la racine du repo :
+
+```bash
+bin/dev
+```
+
+Cela lance via `Procfile.dev` :
+- **Rails** sur `http://localhost:5000`
+- **agent_api** sur `http://localhost:8001`
+- **scraper_api** sur `http://localhost:8002`
+
+Pour vérifier que les services Python sont bien démarrés :
+
+```bash
+curl http://localhost:8001/health
+curl http://localhost:8002/health
+```
+
+### 4.3. docker-compose (optionnel)
 
 Dans `job-hunt-agent/docker-compose.yml` :
 
@@ -240,24 +282,61 @@ services:
 
 ---
 
-## 6. Organisation des fichiers côté Python (agent)
+## 6. Organisation des fichiers côté Python
+
+### Structure actuelle
+
+```
+python_services/
+├── api/                           # Dépendances partagées
+│   ├── .venv/                     # Environnement virtuel Python 3.13+
+│   ├── requirements.txt           # Toutes les dépendances
+│   ├── pyproject.toml
+│   └── .python-version
+│
+├── agent_api/                     # Service d'orchestration IA
+│   ├── __init__.py
+│   ├── main.py                    # FastAPI app (port 8001)
+│   ├── routers/
+│   │   └── __init__.py            # Futurs endpoints
+│   └── core/
+│       └── __init__.py            # Futurs chains LangChain
+│
+└── scraper_api/                   # Service de scraping
+    ├── __init__.py
+    ├── main.py                    # FastAPI app (port 8002)
+    └── parsers/
+        └── __init__.py            # Futurs parsers (LinkedIn, WTTJ)
+```
+
+### Structure cible (à développer)
 
 Pour rester SRP & KISS :
 
 ```
-python_services/agent_api/agent_api/
-├── main.py                # FastAPI app, routes
+python_services/agent_api/
+├── main.py                        # FastAPI app, routes principales
 ├── routers/
-│   ├── job_application.py # endpoint /agent/job_application
-│   └── cv_analysis.py     # endpoint /agent/cv_analysis
+│   ├── __init__.py
+│   ├── job_application.py         # endpoint /agent/job_application
+│   └── cv_analysis.py             # endpoint /agent/cv_analysis
 ├── core/
-│   ├── chains.py          # définition LangChain (job_application_chain, cv_analysis_chain)
-│   ├── tools.py           # tools spécifiques (matching, rewriting, etc.)
-│   └── config.py          # clés API, settings
+│   ├── __init__.py
+│   ├── chains.py                  # définition LangChain
+│   ├── tools.py                   # tools spécifiques (matching, rewriting)
+│   └── config.py                  # clés API, settings
 └── models/
-    ├── job_application.py # Pydantic: JobOfferInput, CvInput, ProfileInput, AgentResponse
+    ├── job_application.py         # Pydantic: JobOfferInput, CvInput, etc.
     └── cv.py
 
+python_services/scraper_api/
+├── main.py                        # FastAPI app, routes principales
+├── parsers/
+│   ├── __init__.py
+│   ├── linkedin.py                # Sélecteurs LinkedIn
+│   └── wttj.py                    # Sélecteurs Welcome to the Jungle
+└── models/
+    └── offer.py                   # Pydantic: OfferData, ScrapeRequest
 ```
 
-Même logique côté `scraper_api`.
+**Important** : Les deux services partagent le même environnement virtuel (`python_services/api/.venv`), ce qui simplifie la gestion des dépendances et évite la duplication.

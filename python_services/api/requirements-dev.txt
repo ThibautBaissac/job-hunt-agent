@@ -1,0 +1,9 @@
+-r requirements.txt
+pytest>=8.3.0
+pytest-asyncio>=0.24.0
+pytest-cov>=6.0.0
+ruff>=0.10.0          # linter moderne (remplace flake8+black)
+black>=24.0.0         # formatter (si tu préfères)
+mypy>=1.13.0          # type checking
+ipython>=8.33.0
+ipdb>=0.13.13         # debugger
