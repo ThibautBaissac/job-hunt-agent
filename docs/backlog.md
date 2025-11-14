@@ -89,7 +89,7 @@
 **Critères d’acceptation :**
 
 - Je peux coller mon CV en texte.
-- Ou uploader un PDF → extraction texte.
+- Ou uploader un docx ou un PDF → extraction texte.
 - Le CV est enregistré comme “CV principal”.
 
 ---

@@ -16,6 +16,8 @@ gem "bootsnap", require: false
 gem "kamal", require: false
 gem "thruster", require: false
 gem "image_processing", "~> 1.2"
+gem "docx"
+gem "pdf-reader"
 gem "devise"
 gem "tailwindcss-rails"
 gem "omniauth"

@@ -7,6 +7,8 @@ class User < ApplicationRecord
   encrypts :google_refresh_token
 
   has_one :profile, dependent: :destroy
+  has_many :cvs, dependent: :destroy
+  has_one :active_cv, -> { where(active: true) }, class_name: "Cv"
 
   after_create :ensure_profile!
 

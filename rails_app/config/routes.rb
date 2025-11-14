@@ -5,6 +5,7 @@ Rails.application.routes.draw do
 
   resource :profile, only: %i[show edit update]
   resource :gmail_connection, only: [ :destroy ]
+  resources :cvs, only: %i[index new create]
 
   root to: "home#index"
 
