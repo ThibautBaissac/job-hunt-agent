@@ -1,0 +1,53 @@
+<section class="mx-auto max-w-3xl space-y-8">
+  <header class="space-y-2">
+    <p class="text-sm font-medium text-slate-500">Optimisation du CV</p>
+    <h1 class="text-3xl font-semibold tracking-tight text-indigo-900">Créer une version optimisée</h1>
+    <p class="text-sm text-slate-500">Réécrivez votre CV en tenant compte des suggestions générées par l’IA.</p>
+  </header>
+
+  <% if flash[:alert].present? %>
+    <div class="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-900">
+      <%= flash[:alert] %>
+    </div>
+  <% end %>
+
+  <div class="space-y-6 rounded-xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/30">
+    <section class="space-y-3">
+      <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-500">Suggestions de l’IA</h2>
+      <% if @suggestions.any? %>
+        <ul class="space-y-2 text-sm leading-6 text-slate-700">
+          <% @suggestions.each do |suggestion| %>
+            <li class="rounded-md bg-slate-50 px-3 py-2"><%= suggestion %></li>
+          <% end %>
+        </ul>
+      <% else %>
+        <p class="text-sm text-slate-500">Aucune suggestion n’a été enregistrée pour cette analyse.</p>
+      <% end %>
+    </section>
+
+    <%= form_with url: cv_optimizations_path(@cv), scope: :optimization, class: "space-y-6" do |form| %>
+      <div class="space-y-2">
+        <%= form.label :title, "Nom de la version", class: "text-sm font-semibold text-indigo-900" %>
+        <%= form.text_field :title,
+              value: params.dig(:optimization, :title) || @cv.title,
+              class: "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200",
+              placeholder: "Ex. CV Backend Rails optimisé" %>
+      </div>
+
+      <div class="space-y-2">
+        <%= form.label :body_text, "Contenu du CV", class: "text-sm font-semibold text-indigo-900" %>
+        <%= form.text_area :body_text,
+              value: @optimized_body,
+              rows: 16,
+              class: "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200",
+              placeholder: "Intégrez ici vos modifications..." %>
+        <p class="text-xs text-slate-500">Relisez attentivement avant de sauvegarder&nbsp;: vos modifications remplaceront la version active.</p>
+      </div>
+
+      <div class="flex justify-end gap-3">
+        <%= link_to "Annuler", cvs_path, class: "rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 transition hover:border-slate-400 hover:text-indigo-900" %>
+        <%= form.submit "Enregistrer la nouvelle version", class: "rounded-md bg-indigo-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800" %>
+      </div>
+    <% end %>
+  </div>
+</section>

@@ -24,7 +24,7 @@ RSpec.describe CvImporters::Create do
     end
 
     it "creates an active CV from an uploaded file" do
-      Tempfile.create(["cv", ".pdf"]) do |tempfile|
+      Tempfile.create([ "cv", ".pdf" ]) do |tempfile|
         tempfile.write("fake pdf content")
         tempfile.rewind
 
@@ -47,7 +47,7 @@ RSpec.describe CvImporters::Create do
     end
 
     it "propagates extraction errors as service errors" do
-      tempfile = Tempfile.new(["cv", ".pdf"])
+      tempfile = Tempfile.new([ "cv", ".pdf" ])
       uploaded_file = Rack::Test::UploadedFile.new(tempfile.path, "application/pdf", true)
       extractor_class = class_double(CvImporters::TextExtractor)
       extractor_instance = instance_double(CvImporters::TextExtractor)

@@ -17,6 +17,23 @@ class CvPresenter
     user.cvs.recent_first
   end
 
+  def analysis_stream_name(cv = active_cv)
+    return unless cv
+
+    "cv_analysis_#{cv.id}"
+  end
+
+  def analysis_sections(cv = active_cv)
+    return { strengths: [], weaknesses: [], suggestions: [], summary: nil } unless cv&.analysis_available?
+
+    {
+      strengths: cv.analysis_forces,
+      weaknesses: cv.analysis_weaknesses,
+      suggestions: cv.analysis_suggestions,
+      summary: cv.analysis_summary
+    }
+  end
+
   private
 
   attr_reader :user

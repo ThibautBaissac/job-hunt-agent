@@ -19,7 +19,8 @@ module CvImporters
           body_text: body_text.strip,
           active: true,
           import_method: import_method,
-          source_filename: source_filename
+          source_filename: source_filename,
+          title: params[:title].presence
         )
 
         attach_document(cv)

@@ -1,0 +1,49 @@
+<% if analysis.present? %>
+	<section id="<%= target_id %>" class="space-y-3 rounded-lg p-4">
+		<header class="space-y-1">
+			<h3 class="text-sm font-semibold uppercase tracking-wide">Analyse IA en direct</h3>
+			<% if analysis["summary"].present? %>
+				<p class="text-sm leading-6"><%= analysis["summary"] %></p>
+			<% end %>
+		</header>
+
+		<% if analysis["strengths"].present? %>
+			<div class="space-y-2">
+				<h4 class="text-xs font-semibold uppercase tracking-wide">Points forts</h4>
+				<ul class="space-y-1 text-sm leading-6">
+					<% analysis["strengths"].each do |item| %>
+						<li class="rounded-md bg-white/80 px-3 py-2"><%= item %></li>
+					<% end %>
+				</ul>
+			</div>
+		<% end %>
+
+		<% if analysis["weaknesses"].present? %>
+			<div class="space-y-2">
+				<h4 class="text-xs font-semibold uppercase tracking-wide">Axes d’amélioration</h4>
+				<ul class="space-y-1 text-sm leading-6">
+					<% analysis["weaknesses"].each do |item| %>
+						<li class="rounded-md bg-white/80 px-3 py-2"><%= item %></li>
+					<% end %>
+				</ul>
+			</div>
+		<% end %>
+
+		<% if analysis["suggestions"].present? %>
+			<div class="space-y-2">
+				<h4 class="text-xs font-semibold uppercase tracking-wide text-indigo-700">Suggestions d’optimisation</h4>
+				<ul class="space-y-1 text-sm leading-6 text-indigo-900">
+					<% analysis["suggestions"].each do |item| %>
+						<li class="rounded-md bg-white px-3 py-2 shadow-sm shadow-slate-200/40"><%= item %></li>
+					<% end %>
+				</ul>
+			</div>
+		<% end %>
+	</section>
+<% elsif raw_content.present? %>
+	<div id="<%= target_id %>" class="rounded-lg border border-indigo-100 bg-white/80 p-4 text-sm leading-6 text-slate-700">
+		<%= simple_format(raw_content) %>
+	</div>
+<% else %>
+	<div id="<%= target_id %>" class="text-sm text-slate-500">Analyse en cours…</div>
+<% end %>

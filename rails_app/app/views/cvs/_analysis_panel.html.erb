@@ -1,0 +1,43 @@
+<section class="space-y-4 rounded-lg p-4">
+  <header class="space-y-1">
+    <h3 class="text-sm font-semibold uppercase tracking-wide">Analyse IA</h3>
+    <% if cv.analysis_summary.present? %>
+      <p class="text-sm leading-6"><%= cv.analysis_summary %></p>
+    <% end %>
+  </header>
+
+  <div class="grid gap-4 sm:grid-cols-2">
+    <div class="space-y-2">
+      <h4 class="text-xs font-semibold uppercase tracking-wide">Points forts</h4>
+      <ul class="space-y-1 text-sm leading-6">
+        <% cv.analysis_forces.each do |item| %>
+          <li class="rounded-md bg-white/80 px-3 py-2"><%= item %></li>
+        <% end %>
+      </ul>
+    </div>
+    <div class="space-y-2">
+      <h4 class="text-xs font-semibold uppercase tracking-wide">Axes d’amélioration</h4>
+      <ul class="space-y-1 text-sm leading-6">
+        <% cv.analysis_weaknesses.each do |item| %>
+          <li class="rounded-md bg-white/80 px-3 py-2"><%= item %></li>
+        <% end %>
+      </ul>
+    </div>
+  </div>
+
+  <div class="space-y-2">
+    <h4 class="text-xs font-semibold uppercase tracking-wide text-indigo-700">Suggestions d’optimisation</h4>
+    <ul class="space-y-1 text-sm leading-6 text-indigo-900">
+      <% cv.analysis_suggestions.each do |item| %>
+        <li class="rounded-md bg-white px-3 py-2 shadow-sm shadow-slate-200/40"><%= item %></li>
+      <% end %>
+    </ul>
+  </div>
+
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <p class="text-xs text-slate-500">Analyse réalisée le <%= l(cv.analyzed_at, format: :long) %></p>
+    <%= link_to "Créer une version optimisée", new_cv_optimization_path(cv), class: "inline-flex items-center gap-2 rounded-md bg-indigo-900 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-slate-800" %>
+  </div>
+
+  <div id="<%= dom_id(cv, :analysis_stream) %>" class="hidden"></div>
+</section>

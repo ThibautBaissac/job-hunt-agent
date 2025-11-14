@@ -11,7 +11,9 @@ RSpec.describe Cv, type: :model do
       older = create(:cv, created_at: 2.days.ago)
       newer = create(:cv, created_at: 1.day.ago)
 
-      expect(described_class.recent_first).to eq([ newer, older ])
+      ordered = described_class.recent_first.where(id: [ newer.id, older.id ])
+
+      expect(ordered).to eq([ newer, older ])
     end
   end
 end

@@ -5,7 +5,14 @@ Rails.application.routes.draw do
 
   resource :profile, only: %i[show edit update]
   resource :gmail_connection, only: [ :destroy ]
-  resources :cvs, only: %i[index new create]
+  resources :cvs, only: %i[index show new create] do
+    member do
+      post :analyze
+      post :activate
+    end
+
+    resources :optimizations, only: %i[new create], module: :cvs
+  end
 
   root to: "home#index"
 
