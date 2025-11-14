@@ -36,13 +36,13 @@ class ProfilesController < ApplicationController
 
   def language_options
     Profile::LANGUAGE_OPTIONS.map do |key, value|
-      [I18n.t("profiles.languages.#{key}", default: key.to_s.humanize), value]
+      [ I18n.t("profiles.languages.#{key}", default: key.to_s.humanize), value ]
     end
   end
 
   def ai_tone_options
     Profile::AI_TONE_OPTIONS.map do |key, value|
-      [I18n.t("profiles.ai_tones.#{key}", default: key.to_s.humanize), value]
+      [ I18n.t("profiles.ai_tones.#{key}", default: key.to_s.humanize), value ]
     end
   end
 end

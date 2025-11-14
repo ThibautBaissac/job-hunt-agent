@@ -4,7 +4,7 @@ Rails.application.routes.draw do
   }
 
   resource :profile, only: %i[show edit update]
-  resource :gmail_connection, only: [:destroy]
+  resource :gmail_connection, only: [ :destroy ]
 
   root to: "home#index"
 

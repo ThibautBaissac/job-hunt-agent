@@ -46,12 +46,12 @@ RSpec.describe Integrations::GmailClient do
     let(:client) { described_class.new(user) }
 
     it "delivers the message through Gmail API" do
-      response = double(id: "abc", thread_id: "thread", label_ids: ["SENT"])
+      response = double(id: "abc", thread_id: "thread", label_ids: [ "SENT" ])
       expect(gmail_service).to receive(:send_user_message).with("me", instance_of(Google::Apis::GmailV1::Message)).and_return(response)
 
       result = client.send_email(to: "target@example.com", subject: "Hello", body: "<p>Body</p>")
 
-      expect(result).to eq(external_id: "abc", thread_id: "thread", label_ids: ["SENT"])
+      expect(result).to eq(external_id: "abc", thread_id: "thread", label_ids: [ "SENT" ])
     end
 
     it "refreshes the token when expired" do
