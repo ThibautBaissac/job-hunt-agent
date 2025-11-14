@@ -3,6 +3,7 @@
 .env.local
 
 # Rails
+rails_app/coverage/
 rails_app/tmp/
 rails_app/log/
 rails_app/storage/

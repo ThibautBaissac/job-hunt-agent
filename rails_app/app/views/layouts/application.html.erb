@@ -18,12 +18,22 @@
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icon.png">
 
-    <%# Includes all stylesheet files in app/assets/stylesheets %>
+    <%# Includes Tailwind build and other compiled stylesheets %>
+    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
 
-  <body>
-    <%= yield %>
+  <body class="bg-slate-50 min-h-screen text-indigo-900">
+    <div class="min-h-screen flex flex-col">
+      <%= render "shared/navbar" %>
+
+      <main class="flex-1">
+        <div class="mx-auto w-full max-w-3xl px-6 py-10">
+          <%= render "shared/flash" %>
+          <%= yield %>
+        </div>
+      </main>
+    </div>
   </body>
 </html>

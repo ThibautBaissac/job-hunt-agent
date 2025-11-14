@@ -1,0 +1,17 @@
+<header class="border-b border-slate-200 bg-white/80 backdrop-blur">
+  <div class="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
+    <%= link_to "Job Hunt Agent", root_path, class: "text-lg font-semibold tracking-tight" %>
+    <% if user_signed_in? %>
+      <div class="flex items-center gap-3 text-sm">
+        <%= link_to "Mon profil", profile_path, class: "rounded-md px-3 py-1.5 font-medium text-slate-600 transition hover:text-indigo-900" %>
+        <%= link_to "Modifier", edit_profile_path, class: "rounded-md px-3 py-1.5 font-medium text-slate-600 transition hover:text-indigo-900" %>
+        <%= button_to "Déconnexion", destroy_user_session_path, method: :delete, class: "rounded-md bg-indigo-900 px-4 py-1.5 font-semibold text-white transition hover:bg-slate-700" %>
+      </div>
+    <% else %>
+      <div class="flex items-center gap-3 text-sm">
+        <%= link_to "Connexion", new_user_session_path, class: "rounded-md px-3 py-1.5 font-medium text-slate-600 transition hover:text-indigo-900" %>
+        <%= link_to "Créer un compte", new_user_registration_path, class: "rounded-md bg-indigo-900 px-4 py-1.5 font-semibold text-white transition hover:bg-slate-700" %>
+      </div>
+    <% end %>
+  </div>
+</header>

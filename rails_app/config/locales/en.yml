@@ -29,3 +29,12 @@
 
 en:
   hello: "Hello world"
+  profiles:
+    languages:
+      french: "French"
+      english: "English"
+    ai_tones:
+      neutral: "Neutral"
+      friendly: "Friendly"
+      formal: "Formal"
+      energetic: "Energetic"

@@ -1,0 +1,25 @@
+<% content_for :title, "Réinitialiser le mot de passe" %>
+
+<section class="mx-auto w-full max-w-md space-y-6">
+  <header class="space-y-2 text-center">
+    <h1 class="text-3xl font-semibold tracking-tight text-indigo-900">Mot de passe oublié ?</h1>
+    <p class="text-sm text-slate-500">Recevez un lien de réinitialisation par email.</p>
+  </header>
+
+  <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/30">
+    <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post, class: "space-y-5" }) do |f| %>
+      <%= render "devise/shared/error_messages", resource: resource %>
+
+      <div class="space-y-2">
+        <%= f.label :email, "Email", class: "text-sm font-medium text-slate-600" %>
+        <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-200" %>
+      </div>
+
+      <div>
+        <%= f.submit "Envoyer les instructions", class: "w-full rounded-md bg-indigo-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700" %>
+      </div>
+    <% end %>
+  </div>
+
+  <%= render "devise/shared/links" %>
+</section>

@@ -1,0 +1,153 @@
+<section class="space-y-8">
+  <header class="space-y-2">
+    <p class="text-sm font-medium text-slate-500">Bienvenue</p>
+    <h1 class="text-3xl font-semibold tracking-tight text-indigo-900">
+      <%= @profile.full_name.presence || "Profil professionnel" %>
+    </h1>
+    <p class="text-sm text-slate-500">Gérez vos informations personnelles et la configuration utilisée pour vos candidatures.</p>
+  </header>
+
+  <div class="grid gap-6">
+    <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/30">
+      <div class="flex items-start justify-between">
+        <div>
+          <h2 class="text-lg font-semibold text-indigo-900">Informations professionnelles</h2>
+          <p class="text-sm text-slate-500">Les informations affichées dans vos candidatures.</p>
+        </div>
+        <%= link_to "Modifier", edit_profile_path, class: "rounded-md border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-600 transition hover:border-slate-400 hover:text-indigo-900" %>
+      </div>
+
+      <dl class="mt-6 grid gap-4 text-sm text-slate-600 sm:grid-cols-2">
+        <div>
+          <dt class="font-medium text-slate-500">Nom complet</dt>
+          <dd class="mt-1 text-indigo-900"><%= @profile.full_name.presence || "—" %></dd>
+        </div>
+        <div>
+          <dt class="font-medium text-slate-500">Titre / Position</dt>
+          <dd class="mt-1 text-indigo-900"><%= @profile.title.presence || "—" %></dd>
+        </div>
+        <div>
+          <dt class="font-medium text-slate-500">Ville</dt>
+          <dd class="mt-1 text-indigo-900"><%= @profile.city.presence || "—" %></dd>
+        </div>
+        <div>
+          <dt class="font-medium text-slate-500">Langue par défaut</dt>
+          <dd class="mt-1 text-indigo-900"><%= I18n.t("profiles.languages.#{@profile.language}", default: @profile.language.humanize) %></dd>
+        </div>
+        <div>
+          <dt class="font-medium text-slate-500">Ton IA</dt>
+          <dd class="mt-1 text-indigo-900"><%= I18n.t("profiles.ai_tones.#{@profile.ai_tone}", default: @profile.ai_tone.humanize) %></dd>
+        </div>
+        <div>
+          <dt class="font-medium text-slate-500">Signature par défaut</dt>
+          <dd class="mt-1 whitespace-pre-line text-indigo-900"><%= @profile.default_signature.presence || "—" %></dd>
+        </div>
+        <div>
+          <dt class="font-medium text-slate-500">GitHub</dt>
+          <dd class="mt-1">
+            <% if @profile.github_url.present? %>
+              <%= link_to @profile.github_url, @profile.github_url, class: "text-indigo-900 underline decoration-slate-300 underline-offset-4 hover:decoration-slate-500" %>
+            <% else %>
+              <span class="text-indigo-900">—</span>
+            <% end %>
+          </dd>
+        </div>
+        <div>
+          <dt class="font-medium text-slate-500">LinkedIn</dt>
+          <dd class="mt-1">
+            <% if @profile.linkedin_url.present? %>
+              <%= link_to @profile.linkedin_url, @profile.linkedin_url, class: "text-indigo-900 underline decoration-slate-300 underline-offset-4 hover:decoration-slate-500" %>
+            <% else %>
+              <span class="text-indigo-900">—</span>
+            <% end %>
+          </dd>
+        </div>
+      </dl>
+    </div>
+
+    <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/30">
+      <h2 class="text-lg font-semibold text-indigo-900">Sécurité & compte</h2>
+      <p class="mt-1 text-sm text-slate-500">Suivez le statut de votre compte et de votre email.</p>
+
+      <dl class="mt-4 grid gap-4 text-sm text-slate-600 sm:grid-cols-2">
+        <div>
+          <dt class="font-medium text-slate-500">Email</dt>
+          <dd class="mt-1 text-indigo-900"><%= current_user.email %></dd>
+        </div>
+        <div>
+          <dt class="font-medium text-slate-500">Statut</dt>
+          <dd class="mt-1">
+            <% if current_user.confirmed? %>
+              <span class="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-700">
+                Confirmé
+              </span>
+            <% else %>
+              <span class="inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-amber-700">
+                En attente de confirmation
+              </span>
+            <% end %>
+          </dd>
+        </div>
+      </dl>
+
+      <% unless current_user.confirmed? %>
+        <div class="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          <p>Pour activer votre compte, validez l’email de confirmation envoyé à <strong><%= current_user.email %></strong>.</p>
+          <p class="mt-2">Vous n’avez rien reçu&nbsp;?</p>
+          <%= button_to "Renvoyer l’email de confirmation", user_confirmation_path(user: { email: current_user.email }), method: :post, class: "mt-3 inline-flex items-center justify-center rounded-md bg-indigo-900 px-4 py-2 font-semibold text-white transition hover:bg-slate-700" %>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/30">
+      <h2 class="text-lg font-semibold text-indigo-900">Intégrations</h2>
+      <p class="mt-1 text-sm text-slate-500">Connectez vos services externes pour préparer et envoyer vos candidatures.</p>
+
+      <dl class="mt-4 grid gap-4 text-sm text-slate-600">
+        <div>
+          <dt class="font-medium text-slate-500">Gmail</dt>
+          <dd class="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex items-center gap-3">
+              <% if current_user.gmail_connected? %>
+                <span class="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-700">
+                  Connecté
+                </span>
+                <span class="text-sm text-slate-600"><%= current_user.email %></span>
+              <% else %>
+                <span class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-slate-600">
+                  Non connecté
+                </span>
+              <% end %>
+            </div>
+
+            <div class="flex gap-2">
+              <% if current_user.gmail_connected? %>
+                <%= button_to "Déconnecter", gmail_connection_path,
+                      method: :delete,
+                      form: { data: { turbo_confirm: "Êtes-vous certain·e de vouloir déconnecter Gmail ?" } },
+                      class: "rounded-md border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-600 transition hover:border-slate-400 hover:text-indigo-900" %>
+              <% else %>
+                <%= button_to "Connecter Gmail",
+                      user_google_oauth2_omniauth_authorize_path,
+                      method: :post,
+                      data: { turbo: false },
+                      class: "inline-flex items-center justify-center rounded-md bg-indigo-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700" %>
+              <% end %>
+            </div>
+          </dd>
+        </div>
+      </dl>
+
+      <% if current_user.gmail_needs_reconnect? %>
+        <div class="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          <p>Votre autorisation Gmail a expiré. Reconnectez-vous pour continuer à envoyer des emails.</p>
+          <%= button_to "Reconnecter Gmail",
+                user_google_oauth2_omniauth_authorize_path,
+                method: :post,
+                data: { turbo: false },
+                class: "mt-3 inline-flex items-center justify-center rounded-md bg-indigo-900 px-4 py-2 font-semibold text-white transition hover:bg-slate-700" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</section>

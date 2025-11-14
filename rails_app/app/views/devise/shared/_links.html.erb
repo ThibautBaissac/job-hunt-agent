@@ -1,0 +1,27 @@
+<div class="mt-8 space-y-2 text-sm">
+  <%- if controller_name != 'sessions' %>
+    <%= link_to "Déjà inscrit ? Connectez-vous", new_session_path(resource_name), class: "text-slate-600 underline decoration-slate-300 underline-offset-4 transition hover:text-indigo-900 hover:decoration-slate-500" %>
+  <% end %>
+
+  <%- if devise_mapping.registerable? && controller_name != 'registrations' %>
+    <%= link_to "Créer un compte", new_registration_path(resource_name), class: "text-slate-600 underline decoration-slate-300 underline-offset-4 transition hover:text-indigo-900 hover:decoration-slate-500" %>
+  <% end %>
+
+  <%- if devise_mapping.recoverable? && controller_name != 'passwords' && controller_name != 'registrations' %>
+    <%= link_to "Mot de passe oublié ?", new_password_path(resource_name), class: "text-slate-600 underline decoration-slate-300 underline-offset-4 transition hover:text-indigo-900 hover:decoration-slate-500" %>
+  <% end %>
+
+  <%- if devise_mapping.confirmable? && controller_name != 'confirmations' %>
+    <%= link_to "Renvoyer les instructions de confirmation", new_confirmation_path(resource_name), class: "text-slate-600 underline decoration-slate-300 underline-offset-4 transition hover:text-indigo-900 hover:decoration-slate-500" %>
+  <% end %>
+
+  <%- if devise_mapping.lockable? && resource_class.unlock_strategy_enabled?(:email) && controller_name != 'unlocks' %>
+    <%= link_to "Renvoyer les instructions de déverrouillage", new_unlock_path(resource_name), class: "text-slate-600 underline decoration-slate-300 underline-offset-4 transition hover:text-indigo-900 hover:decoration-slate-500" %>
+  <% end %>
+
+  <%- if devise_mapping.omniauthable? %>
+    <%- resource_class.omniauth_providers.each do |provider| %>
+      <%= button_to "Se connecter avec #{OmniAuth::Utils.camelize(provider)}", omniauth_authorize_path(resource_name, provider), data: { turbo: false }, class: "w-full rounded-md border border-slate-300 px-4 py-2 text-left font-medium text-slate-600 transition hover:border-slate-400 hover:text-indigo-900" %>
+    <% end %>
+  <% end %>
+</div>
