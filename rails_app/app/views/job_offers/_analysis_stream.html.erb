@@ -1,0 +1,44 @@
+<% if analysis.present? %>
+  <section id="<%= target_id %>" class="space-y-3 rounded-lg border border-indigo-100 bg-indigo-50/60 p-4 text-sm leading-6 text-slate-700">
+    <header class="space-y-1">
+      <h3 class="text-xs font-semibold uppercase tracking-wide text-indigo-700">Analyse IA en direct</h3>
+      <% if analysis["summary"].present? %>
+        <p><%= analysis["summary"] %></p>
+      <% end %>
+    </header>
+
+    <% if Array(analysis["tech_stack"]).any? %>
+      <div class="space-y-1">
+        <h4 class="text-xs font-semibold uppercase tracking-wide">Technologies détectées</h4>
+        <ul class="flex flex-wrap gap-2">
+          <% Array(analysis["tech_stack"]).each do |item| %>
+            <li class="rounded-full bg-white px-3 py-1 text-xs font-semibold text-indigo-800"><%= item %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <% if Array(analysis["keywords"]).any? %>
+      <div class="space-y-1">
+        <h4 class="text-xs font-semibold uppercase tracking-wide">Mots-clés</h4>
+        <ul class="flex flex-wrap gap-2">
+          <% Array(analysis["keywords"]).each do |item| %>
+            <li class="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800"><%= item %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <% if analysis["seniority_level"].present? %>
+      <p class="text-xs text-slate-500">Niveau estimé : <%= analysis["seniority_level"] %></p>
+    <% end %>
+  </section>
+<% elsif raw_content.present? %>
+  <div id="<%= target_id %>" class="rounded-lg border border-dashed border-indigo-200 bg-white/80 p-4 text-sm text-slate-700">
+    <%= simple_format(raw_content) %>
+  </div>
+<% else %>
+  <div id="<%= target_id %>" class="rounded-lg border border-dashed border-indigo-200 bg-white/80 p-4 text-sm text-slate-600">
+    Analyse en cours…
+  </div>
+<% end %>

@@ -17,6 +17,10 @@ class JobOfferPresenter
     Array(job_offer.tech_stack).compact_blank
   end
 
+  def keywords
+    Array(job_offer.keywords).compact_blank
+  end
+
   def analysis_status
     return "Analyse IA disponible" if job_offer.analysis_available?
 

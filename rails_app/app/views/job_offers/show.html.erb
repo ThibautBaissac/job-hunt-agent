@@ -18,18 +18,13 @@
 
   <div class="grid gap-6 md:grid-cols-3">
     <div class="space-y-6 md:col-span-2">
-      <section class="space-y-3 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <header class="flex items-center justify-between">
-          <h2 class="text-lg font-semibold text-indigo-900">Résumé IA</h2>
-          <span class="text-xs font-medium text-slate-500"><%= @presenter.analysis_status %></span>
-        </header>
+      <% if @analysis_stream_name.present? %>
+        <%= turbo_stream_from @analysis_stream_name %>
+      <% end %>
 
-        <% if @presenter.analysis_available? %>
-          <p class="text-sm leading-relaxed text-slate-600"><%= @presenter.summary %></p>
-        <% else %>
-          <p class="text-sm italic text-slate-500">L'analyse est en cours. Les résultats apparaîtront ici une fois disponibles.</p>
-        <% end %>
-      </section>
+      <div id="<%= dom_id(@job_offer, :analysis) %>">
+        <%= render(@presenter.analysis_available? ? "job_offers/analysis_panel" : "job_offers/analysis_empty", job_offer: @job_offer, presenter: @presenter) %>
+      </div>
 
       <section class="space-y-3 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
         <header>
@@ -66,6 +61,19 @@
           <ul class="flex flex-wrap gap-2">
             <% @presenter.tech_stack.each do |tech| %>
               <li class="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-800"><%= tech %></li>
+            <% end %>
+          </ul>
+        <% else %>
+          <p class="text-sm italic text-slate-500">L'analyse IA complétera cette section.</p>
+        <% end %>
+      </section>
+
+      <section class="space-y-3 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+        <h2 class="text-lg font-semibold text-indigo-900">Mots-clés</h2>
+        <% if @presenter.keywords.any? %>
+          <ul class="flex flex-wrap gap-2">
+            <% @presenter.keywords.each do |keyword| %>
+              <li class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800"><%= keyword %></li>
             <% end %>
           </ul>
         <% else %>

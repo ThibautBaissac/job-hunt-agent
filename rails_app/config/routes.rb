@@ -15,6 +15,10 @@ Rails.application.routes.draw do
   end
 
   resources :job_offers, only: %i[index new create show] do
+    member do
+      post :analyze
+    end
+
     collection do
       get :new_manual
       post :create_manual

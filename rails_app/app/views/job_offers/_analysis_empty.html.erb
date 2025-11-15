@@ -1,0 +1,24 @@
+<% presenter = local_assigns.fetch(:presenter) { JobOfferPresenter.new(job_offer) } %>
+<section class="space-y-3 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+  <header class="flex items-center justify-between">
+    <h2 class="text-lg font-semibold text-indigo-900">Résumé IA</h2>
+    <span class="text-xs font-medium text-slate-500"><%= presenter.analysis_status %></span>
+  </header>
+
+  <p class="text-sm italic text-slate-500">L'analyse est en cours. Les résultats apparaîtront ici une fois disponibles.</p>
+
+  <div class="space-y-3 rounded-lg border border-dashed border-indigo-200 bg-slate-50/60 p-4 text-sm text-slate-600">
+    <p class="flex items-center gap-3">
+      <span class="h-3 w-3 animate-pulse rounded-full bg-indigo-500"></span>
+      En attente de la réponse IA…
+    </p>
+
+    <%= button_to "Relancer l'analyse",
+          analyze_job_offer_path(job_offer),
+          method: :post,
+          class: "inline-flex items-center gap-2 rounded-md border border-indigo-200 bg-white px-3 py-1.5 text-xs font-semibold text-indigo-900 transition hover:bg-indigo-50",
+          data: { turbo_stream: true } %>
+  </div>
+
+  <div id="<%= dom_id(job_offer, :analysis_stream) %>" class="hidden"></div>
+</section>

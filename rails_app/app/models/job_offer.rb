@@ -23,4 +23,8 @@ class JobOffer < ApplicationRecord
   def tech_stack
     super || []
   end
+
+  def keywords
+    super || []
+  end
 end

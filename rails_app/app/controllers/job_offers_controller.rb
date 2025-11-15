@@ -1,5 +1,5 @@
 class JobOffersController < ApplicationController
-  before_action :set_job_offer, only: :show
+  before_action :set_job_offer, only: %i[show analyze]
 
   def index
     @job_offers = current_user.job_offers.recent_first
@@ -24,6 +24,25 @@ class JobOffersController < ApplicationController
 
   def show
     @presenter = JobOfferPresenter.new(@job_offer)
+    @analysis_stream_name = analysis_stream_name_for(@job_offer)
+  end
+
+  def analyze
+    OfferAnalysisJob.perform_later(@job_offer.id)
+
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.replace(
+          helpers.dom_id(@job_offer, :analysis),
+          partial: "job_offers/analysis_loading",
+          locals: { job_offer: @job_offer, presenter: JobOfferPresenter.new(@job_offer) }
+        )
+      end
+
+      format.html do
+        redirect_to job_offer_path(@job_offer), notice: "Analyse relancée. Les résultats apparaîtront dès qu'ils seront prêts."
+      end
+    end
   end
 
   def new_manual
@@ -62,5 +81,9 @@ class JobOffersController < ApplicationController
       :source_url,
       :tech_stack_input
     )
+  end
+
+  def analysis_stream_name_for(job_offer)
+    "job_offer_analysis_#{job_offer.id}"
   end
 end
