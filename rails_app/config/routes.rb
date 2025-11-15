@@ -14,6 +14,13 @@ Rails.application.routes.draw do
     resources :optimizations, only: %i[new create], module: :cvs
   end
 
+  resources :job_offers, only: %i[index new create show] do
+    collection do
+      get :new_manual
+      post :create_manual
+    end
+  end
+
   root to: "home#index"
 
   if Rails.env.development?

@@ -9,6 +9,7 @@ class User < ApplicationRecord
   has_one :profile, dependent: :destroy
   has_many :cvs, dependent: :destroy
   has_one :active_cv, -> { where(active: true) }, class_name: "Cv"
+  has_many :job_offers, dependent: :destroy
 
   after_create :ensure_profile!
 

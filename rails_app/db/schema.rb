@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_14_130000) do
+ActiveRecord::Schema[8.1].define(version: 2025_11_14_140000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -60,6 +60,26 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_14_130000) do
     t.index ["user_id"], name: "index_cvs_on_user_id"
   end
 
+  create_table "job_offers", force: :cascade do |t|
+    t.datetime "analyzed_at"
+    t.string "company_name", null: false
+    t.string "contract_type"
+    t.datetime "created_at", null: false
+    t.string "location"
+    t.text "raw_description", null: false
+    t.string "seniority_level"
+    t.string "source", default: "other", null: false
+    t.string "source_url"
+    t.text "summary"
+    t.jsonb "tech_stack", default: [], null: false
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["created_at"], name: "index_job_offers_on_created_at"
+    t.index ["source"], name: "index_job_offers_on_source"
+    t.index ["user_id"], name: "index_job_offers_on_user_id"
+  end
+
   create_table "profiles", force: :cascade do |t|
     t.string "ai_tone", default: "neutral", null: false
     t.string "city"
@@ -101,5 +121,6 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_14_130000) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "cvs", "users"
+  add_foreign_key "job_offers", "users"
   add_foreign_key "profiles", "users"
 end

@@ -595,6 +595,7 @@ DEPENDENCIES
   docx
   dotenv-rails
   factory_bot_rails
+  faraday
   google-apis-gmail_v1
   googleauth
   image_processing (~> 1.2)

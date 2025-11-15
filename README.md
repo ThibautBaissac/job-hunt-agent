@@ -190,6 +190,7 @@ Runs:
 - **Tech Stack:** Playwright, BeautifulSoup, FastAPI
 - **Input:** `{ url: "..." }`
 - **Output:** `{ title, company, location, description, platform }`
+- **Env vars:** `SCRAPER_HEADLESS` (default `true`) toggles browser UI, `SCRAPER_PAGE_TIMEOUT_MS` (default `25000`) tunes navigation timeout, `SCRAPER_USER_AGENT` overrides the default user agent, `SCRAPER_LAUNCH_ARGS` customises Chromium flags (defaults `--no-sandbox --disable-dev-shm-usage --disable-gpu`).
 
 ### Shared Python Environment
 Located in `python_services/api/.venv/`, contains:

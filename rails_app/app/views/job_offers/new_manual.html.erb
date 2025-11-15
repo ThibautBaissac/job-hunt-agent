@@ -1,0 +1,75 @@
+<section class="mx-auto max-w-3xl space-y-8">
+  <header class="space-y-2">
+    <p class="text-sm font-medium text-slate-500">Import manuel</p>
+    <h1 class="text-3xl font-semibold tracking-tight text-indigo-900">Saisir les détails de l'offre</h1>
+    <p class="text-sm text-slate-500">Saisissez manuellement les informations de l'offre d'emploi. L'analyse par IA sera effectuée automatiquement.</p>
+  </header>
+
+  <% if @manual_form.errors.any? %>
+    <div class="space-y-2 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-900">
+      <% @manual_form.errors.full_messages.each do |message| %>
+        <p><%= message %></p>
+      <% end %>
+    </div>
+  <% elsif flash[:alert].present? %>
+    <div class="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-900">
+      <%= flash[:alert] %>
+    </div>
+  <% end %>
+
+  <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm shadow-slate-200/30">
+    <%= form_with model: @manual_form, url: create_manual_job_offers_path, scope: :job_offer_manual, class: "space-y-6" do |form| %>
+      <div class="space-y-2">
+        <%= form.label :title, "Titre du poste", class: "text-sm font-semibold text-indigo-900" %>
+        <%= form.text_field :title,
+              class: "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200",
+              placeholder: "Ex: Développeur Full Stack Senior" %>
+      </div>
+
+      <div class="space-y-2">
+        <%= form.label :company_name, "Nom de l'entreprise", class: "text-sm font-semibold text-indigo-900" %>
+        <%= form.text_field :company_name,
+              class: "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200",
+              placeholder: "Ex: Acme Corp" %>
+      </div>
+
+      <div class="space-y-2">
+        <%= form.label :location, "Localisation", class: "text-sm font-semibold text-indigo-900" %>
+        <%= form.text_field :location,
+              class: "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200",
+              placeholder: "Ex: Paris, France (Hybride)" %>
+        <p class="text-xs text-slate-500">Optionnel</p>
+      </div>
+
+      <div class="space-y-2">
+        <%= form.label :raw_description, "Description de l'offre", class: "text-sm font-semibold text-indigo-900" %>
+        <%= form.text_area :raw_description,
+              rows: 12,
+              class: "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200",
+              placeholder: "Copiez-collez la description complète de l'offre d'emploi..." %>
+      </div>
+
+      <div class="space-y-2">
+        <%= form.label :tech_stack_input, "Stack technique", class: "text-sm font-semibold text-indigo-900" %>
+        <%= form.text_area :tech_stack_input,
+              rows: 3,
+              class: "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200",
+              placeholder: "Ex: Ruby on Rails, PostgreSQL, React, Docker..." %>
+        <p class="text-xs text-slate-500">Optionnel - Séparez les technologies par des virgules ou des retours à la ligne</p>
+      </div>
+
+      <div class="space-y-2">
+        <%= form.label :source_url, "URL source", class: "text-sm font-semibold text-indigo-900" %>
+        <%= form.url_field :source_url,
+              class: "w-full rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200",
+              placeholder: "https://..." %>
+        <p class="text-xs text-slate-500">Optionnel - Lien vers l'offre originale si disponible</p>
+      </div>
+
+      <div class="flex justify-between gap-3">
+        <%= link_to "Retour", job_offers_path, class: "rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 transition hover:border-slate-400 hover:text-indigo-900" %>
+        <%= form.submit "Créer l'offre", class: "rounded-md bg-indigo-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800" %>
+      </div>
+    <% end %>
+  </div>
+</section>
