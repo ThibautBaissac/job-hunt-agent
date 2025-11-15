@@ -24,8 +24,8 @@ class WttjParser(BaseParser):
         try:
             await page.wait_for_selector("[data-testid='job-section-description']", timeout=10_000)
             logger.debug("WTTJ job description section found")
-        except TimeoutError as exc:
-            logger.warning("WTTJ job description section not found after 10s")
+        except (TimeoutError, PlaywrightTimeoutError) as exc:
+            logger.warning("WTTJ job description section not found after 10s, continuing anyway...")
             # Continue anyway, fallback methods might still work
 
         job_payload = await self._extract_from_next_data(page)
@@ -131,17 +131,100 @@ class WttjParser(BaseParser):
                         elif country:
                             location = country
 
-                        # WTTJ uses 'profile' field for job description
-                        description = job_data.get("profile") or job_data.get("description")
-
+                        # Extract organization data
                         org_data = job_data.get("organization", {})
                         company = org_data.get("name") if isinstance(org_data, dict) else None
+                        company_description = org_data.get("description") if isinstance(org_data, dict) else None
+
+                        # Build comprehensive description combining all sections
+                        description_parts = []
+
+                        # 1. Descriptif du poste (Job description)
+                        job_description = job_data.get("description")
+                        if job_description:
+                            description_parts.append("=== DESCRIPTIF DU POSTE ===\n" + job_description)
+
+                        # 2. Profil recherché (Profile)
+                        profile = job_data.get("profile")
+                        if profile:
+                            description_parts.append("=== PROFIL RECHERCHÉ ===\n" + profile)
+
+                        # 3. Qui sont-ils ? (Company description)
+                        if company_description:
+                            description_parts.append("=== L'ENTREPRISE ===\n" + company_description)
+
+                        # 4. Déroulement des entretiens (Recruitment process)
+                        recruitment_process = job_data.get("recruitment_process")
+                        if recruitment_process:
+                            description_parts.append("=== DÉROULEMENT DES ENTRETIENS ===\n" + recruitment_process)
+
+                        # 5. Les conditions (Job conditions)
+                        conditions = []
+
+                        # Contract type
+                        contract_type_names = job_data.get("contract_type_names")
+                        if contract_type_names:
+                            if isinstance(contract_type_names, list):
+                                conditions.append(f"Contrat : {', '.join(contract_type_names)}")
+                            else:
+                                conditions.append(f"Contrat : {contract_type_names}")
+
+                        # Experience level
+                        experience_name = job_data.get("experience_level_minimum_name")
+                        if experience_name:
+                            conditions.append(f"Expérience : {experience_name}")
+
+                        # Remote work
+                        remote_name = job_data.get("remote_name")
+                        if remote_name:
+                            conditions.append(f"Télétravail : {remote_name}")
+
+                        # Salary (WTTJ API returns values in thousands already, e.g., 57 = 57K€)
+                        salary_min = job_data.get("salary_min")
+                        salary_max = job_data.get("salary_max")
+                        salary_currency = job_data.get("salary_currency", "€")
+                        salary_period = job_data.get("salary_period")
+
+                        if salary_min or salary_max:
+                            salary_str = "Salaire : "
+                            if salary_min and salary_max:
+                                # If values are < 1000, they're already in K format (57 = 57K)
+                                # If values are >= 1000, they need to be divided (57000 = 57K)
+                                if salary_min >= 1000 and salary_max >= 1000:
+                                    min_k = f"{int(salary_min / 1000)}K"
+                                    max_k = f"{int(salary_max / 1000)}K"
+                                    salary_str += f"{min_k} à {max_k} {salary_currency}"
+                                else:
+                                    salary_str += f"{int(salary_min)}K à {int(salary_max)}K {salary_currency}"
+                            elif salary_min:
+                                if salary_min >= 1000:
+                                    min_k = f"{int(salary_min / 1000)}K"
+                                    salary_str += f"à partir de {min_k} {salary_currency}"
+                                else:
+                                    salary_str += f"à partir de {int(salary_min)}K {salary_currency}"
+                            elif salary_max:
+                                if salary_max >= 1000:
+                                    max_k = f"{int(salary_max / 1000)}K"
+                                    salary_str += f"jusqu'à {max_k} {salary_currency}"
+                                else:
+                                    salary_str += f"jusqu'à {int(salary_max)}K {salary_currency}"
+
+                            if salary_period:
+                                salary_str += f" / {salary_period}"
+
+                            conditions.append(salary_str)
+
+                        if conditions:
+                            description_parts.append("=== LES CONDITIONS ===\n" + "\n".join(conditions))
+
+                        # Combine all sections
+                        full_description = "\n\n".join(description_parts) if description_parts else None
 
                         return {
                             "title": job_data.get("name"),
                             "company": company,
                             "location": location,
-                            "description": description,
+                            "description": full_description,
                         }
             except (json.JSONDecodeError, AttributeError, KeyError) as exc:
                 logger.warning("Failed to parse __INITIAL_DATA__: %s", exc)
