@@ -15,6 +15,11 @@ services:
       - postgres
       - redis
     network_mode: service:postgres
+    # Playwright/Chromium configuration for web scraping
+    shm_size: 2gb
+    ipc: host
+    cap_add:
+      - SYS_ADMIN
 
   postgres:
     image: postgres:16-alpine
