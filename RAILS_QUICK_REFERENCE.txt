@@ -1,0 +1,131 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║           RAILS CODE QUALITY ANALYSIS - QUICK REFERENCE                    ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+OVERALL SCORE: 7/10 - Good patterns with DRY violations
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ COMPONENT SCORES                                                             │
+├─────────────────────────────────────────────────────────────────────────────┤
+│ Models              7.5/10  ✓ Good - Some redundant defensive methods       │
+│ Controllers         8/10    ✓ Good - Clean RESTful design                   │
+│ Services            7/10    ⚠ CRITICAL duplication issues found            │
+│ Jobs                6.5/10  ⚠ Mixing concerns, significant duplication     │
+│ Form Objects        8.5/10  ✓ Good - Well-structured                        │
+│ Presenters          8/10    ✓ Good - Clean separation                       │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ CRITICAL ISSUES (🔴 Must Fix)                                               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│ 1. JSON NORMALIZATION DUPLICATION IN SERVICES (60+ lines)                   │
+│    Location: app/services/ai/cv_analyzer.rb & app/services/ai/offer_analyzer.rb
+│    Methods: normalize_payload, extract_json_fragment, unwrap_payload,       │
+│              normalize_array, strip_code_fences                             │
+│    Impact:  Bug fix would need to be applied in 2 places                    │
+│    Fix:     Extract to Ai::SharedJsonNormalizer module                      │
+│                                                                              │
+│ 2. DUPLICATE BACKEND VALIDATION LOGIC                                       │
+│    Location: JobOffersController#resolve_backend (line 92-97)               │
+│              OfferAnalysisJob#normalize_backend (line 117-127)               │
+│    Impact:  Logic can diverge between controller and job                    │
+│    Fix:     Create OfferAnalyzerBackend service                             │
+│                                                                              │
+│ 3. COPY-PASTE BUG IN JOB                                                    │
+│    Location: OfferAnalysisJob lines 119-120 (duplicate identical lines)     │
+│    Fix:      Remove duplicate, simplify logic                               │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ MEDIUM ISSUES (🟡 Should Fix)                                               │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│ 1. DUPLICATED JSON EXTRACTION IN JOBS (50+ lines)                           │
+│    Location: CvAnalysisJob and OfferAnalysisJob                             │
+│    Methods: extract_analysis, capture_json_segment, sanitized_stream,       │
+│              normalize_analysis_hash                                         │
+│    Fix:     Extract to shared service/concern                               │
+│                                                                              │
+│ 2. MIXING OF CONCERNS - ActionView in Jobs                                  │
+│    Location: Both analysis jobs include ActionView::RecordIdentifier        │
+│    Issue:    Jobs shouldn't depend on view layer (dom_id)                   │
+│    Fix:      Extract to TurboStreamHelpers service                          │
+│                                                                              │
+│ 3. OVERLY BROAD EXCEPTION HANDLING                                          │
+│    Location: Users::OmniauthCallbacksController#google_oauth2 (line 21)    │
+│    Issue:    rescue StandardError catches NoMethodError, RuntimeError, etc  │
+│    Fix:      Be more specific: rescue Signet::AuthorizationError            │
+│                                                                              │
+│ 4. INCONSISTENT ERROR HANDLING PATTERNS                                     │
+│    Location: Cvs::OptimizationsController mixes styles (line 6)            │
+│    Issue:    Uses both 'and return' and rescue blocks                       │
+│    Fix:      Use consistent guard clause pattern                            │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ LOW PRIORITY ISSUES (🟢 Nice to Have)                                       │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│ 1. REDUNDANT DEFENSIVE METHODS IN CV MODEL                                  │
+│    Location: app/models/cv.rb lines 23-33                                   │
+│    Issue:    analysis_forces, analysis_weaknesses, analysis_suggestions     │
+│              return super || [] but column already has default: []          │
+│    Fix:      Remove these methods                                           │
+│                                                                              │
+│ 2. COMPLEX JOBOFFEFFER BACKEND SETTER                                       │
+│    Location: app/models/job_offer.rb lines 36-39                           │
+│    Fix:      Simplify or move to validator                                  │
+│                                                                              │
+│ 3. DEAD CODE                                                                │
+│    Location: JobOffersController#analysis_stream_name_for (lines 88-90)    │
+│    Issue:    Method never called - stream name generated in job             │
+│    Fix:      Remove method                                                  │
+│                                                                              │
+│ 4. VARIABLE NAME CONFUSION                                                  │
+│    Location: Ai::Client#chat method                                         │
+│    Issue:    Reuses 'chat' as both instance variable and local variable    │
+│    Fix:      Use 'base_chat' for clarity                                    │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ REFACTORING ROADMAP                                                          │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│ PHASE 1 (High Priority - 1-2 days):                                         │
+│   [ ] Extract Ai::SharedJsonNormalizer module                               │
+│   [ ] Fix OfferAnalysisJob copy-paste error                                 │
+│   [ ] Create OfferAnalyzerBackend service                                   │
+│   [ ] Extract TurboStreamHelpers from jobs                                  │
+│                                                                              │
+│ PHASE 2 (Medium Priority - 1-2 days):                                       │
+│   [ ] Extract job JSON extraction to shared service                         │
+│   [ ] Improve exception handling specificity                                │
+│   [ ] Standardize error handling patterns                                   │
+│                                                                              │
+│ PHASE 3 (Low Priority - Few hours):                                         │
+│   [ ] Remove CV model defensive methods                                     │
+│   [ ] Simplify JobOffer backend setter                                      │
+│   [ ] Remove dead code                                                      │
+│   [ ] Clarify variable names                                                │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+POSITIVE NOTES:
+✓ Strong architectural patterns (Service Object, Presenter, Form Object)
+✓ Proper use of Rails conventions
+✓ Good separation of concerns (mostly)
+✓ Custom exception classes for good error handling
+✓ Proper use of ActiveRecord associations
+✓ Good use of transactions for data consistency
+✓ Encrypted sensitive fields (OAuth tokens)
+✓ Well-tested services (based on spec structure)
+
+NEXT STEPS:
+1. Review detailed analysis in RAILS_CODE_QUALITY_ANALYSIS.md
+2. Start with Phase 1 refactoring (critical issues)
+3. Add/update tests for refactored code
+4. Consider code review process for future changes
