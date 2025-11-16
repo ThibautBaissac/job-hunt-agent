@@ -23,7 +23,7 @@ RSpec.describe OfferAnalysisJob, type: :job do
     it "analyzes the job offer" do
       described_class.new.perform(job_offer.id)
 
-      expect(Ai::OfferAnalyzer).to have_received(:new).with(job_offer: job_offer, streamer: anything)
+      expect(Ai::OfferAnalyzer).to have_received(:new).with(job_offer: job_offer, streamer: anything, backend: :rails)
       expect(analyzer).to have_received(:call)
     end
 
@@ -34,6 +34,12 @@ RSpec.describe OfferAnalysisJob, type: :job do
       # Vérifier que l'analyse a bien été persistée serait testé par l'analyzer
       # Ici on vérifie juste que le job s'exécute sans erreur
       expect(Ai::OfferAnalyzer).to have_received(:new)
+    end
+
+    it "passes the backend mode when provided" do
+      described_class.new.perform(job_offer.id, mode: "python")
+
+      expect(Ai::OfferAnalyzer).to have_received(:new).with(job_offer: job_offer, streamer: anything, backend: :python)
     end
 
     context "when analysis fails" do

@@ -64,7 +64,7 @@ RSpec.describe "JobOffers", type: :request do
         post analyze_job_offer_path(job_offer),
              headers: default_headers("Accept" => "text/vnd.turbo-stream.html"),
              params: {}
-      end.to have_enqueued_job(OfferAnalysisJob).with(job_offer.id)
+      end.to have_enqueued_job(OfferAnalysisJob).with(job_offer.id, hash_including(mode: "rails"))
 
       expect(response).to have_http_status(:ok)
       expect(response.media_type).to eq("text/vnd.turbo-stream.html")
@@ -76,6 +76,12 @@ RSpec.describe "JobOffers", type: :request do
 
       expect(response).to redirect_to(job_offer_path(job_offer))
       expect(flash[:notice]).to include("Analyse relancée")
+    end
+
+    it "enqueues the python backend when requested" do
+      expect do
+        post analyze_job_offer_path(job_offer), params: { backend: "python" }
+      end.to have_enqueued_job(OfferAnalysisJob).with(job_offer.id, hash_including(mode: "python"))
     end
   end
 end

@@ -1,5 +1,16 @@
+<% if defined?(presenter) %>
+  <% current_backend = backend || presenter.job_offer.analysis_backend %>
+  <% display_label = presenter.backend_label_for(current_backend) %>
+  <% badge_classes = presenter.backend_badge_classes_for(current_backend) %>
+<% end %>
+
 <% if analysis.present? %>
   <section id="<%= target_id %>" class="space-y-3 rounded-lg border border-indigo-100 bg-indigo-50/60 p-4 text-sm leading-6 text-slate-700">
+    <% if display_label.present? %>
+      <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide <%= badge_classes %>">
+        <%= display_label %>
+      </span>
+    <% end %>
     <header class="space-y-1">
       <h3 class="text-xs font-semibold uppercase tracking-wide text-indigo-700">Analyse IA en direct</h3>
       <% if analysis["summary"].present? %>

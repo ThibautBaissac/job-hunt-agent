@@ -1,19 +1,19 @@
-<section class="space-y-3 rounded-xl border border-rose-200 bg-rose-50 p-6 text-sm leading-relaxed text-rose-700 shadow-sm">
-  <header class="flex items-center justify-between">
-    <h2 class="text-lg font-semibold text-rose-800">Résumé IA</h2>
-    <span class="text-xs font-medium uppercase tracking-wide">Erreur</span>
+<% presenter = local_assigns.fetch(:presenter) { JobOfferPresenter.new(job_offer) } %>
+<section id="<%= dom_id(job_offer, :analysis) %>" class="space-y-4 rounded-xl border border-rose-200 bg-rose-50 p-6 text-sm leading-relaxed text-rose-700 shadow-sm">
+  <header class="space-y-2">
+    <div class="flex items-center justify-between gap-3">
+      <h2 class="text-lg font-semibold text-rose-800">Résumé IA</h2>
+      <span class="text-xs font-medium uppercase tracking-wide">Erreur</span>
+    </div>
+    <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold <%= presenter.analysis_backend_badge_classes %>">
+      <%= presenter.analysis_backend_label %>
+    </span>
   </header>
 
   <p>Une erreur est survenue pendant l'analyse : <strong><%= message %></strong></p>
-  <p>Vous pouvez réessayer plus tard ou lancer une nouvelle analyse lorsque l'offre sera éditée.</p>
+  <p>Vous pouvez réessayer avec un autre flux ou relancer plus tard.</p>
 
-  <div class="flex items-center justify-end">
-    <%= button_to "Relancer l'analyse",
-          analyze_job_offer_path(job_offer),
-          method: :post,
-          class: "inline-flex items-center gap-2 rounded-md border border-rose-200 bg-white px-3 py-1.5 text-xs font-semibold text-rose-800 transition hover:bg-rose-100",
-          data: { turbo_stream: true } %>
-  </div>
+  <%= render "job_offers/analysis_backend_actions", job_offer: job_offer, presenter: presenter %>
 
   <div id="<%= dom_id(job_offer, :analysis_stream) %>" class="hidden"></div>
 </section>

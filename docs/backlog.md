@@ -160,6 +160,7 @@
     - mots-clés importants,
     - niveau d’expérience.
 - Les données sont affichées et éditables.
+- L’utilisateur peut sélectionner le backend d’analyse (Rails LLM ou Agent API Python) à chaque lancement.
 
 ---
 

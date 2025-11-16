@@ -5,6 +5,17 @@ class JobOfferPresenter
     "other" => "Autre"
   }.freeze
 
+  BACKEND_OPTIONS = {
+    "rails" => {
+      label: "Rails LLM",
+      badge_classes: "bg-indigo-100 text-indigo-800"
+    },
+    "python" => {
+      label: "Agent API",
+      badge_classes: "bg-emerald-100 text-emerald-800"
+    }
+  }.freeze
+
   def initialize(job_offer)
     @job_offer = job_offer
   end
@@ -27,6 +38,28 @@ class JobOfferPresenter
     "Analyse en cours"
   end
 
+  def analysis_backend_label
+    option_for(job_offer.analysis_backend)[:label]
+  end
+
+  def analysis_backend_badge_classes
+    backend_badge_classes_for(job_offer.analysis_backend)
+  end
+
+  def backend_label_for(mode)
+    option_for(mode)[:label]
+  end
+
+  def backend_badge_classes_for(mode)
+    option_for(mode)[:badge_classes]
+  end
+
+  def available_backends
+    BACKEND_OPTIONS.map do |key, config|
+      { key: key, label: config[:label] }
+    end
+  end
+
   def analysis_available?
     job_offer.analysis_available?
   end
@@ -41,5 +74,10 @@ class JobOfferPresenter
 
   def job_offer
     @job_offer
+  end
+
+  def option_for(mode)
+    key = mode.to_s.presence
+    BACKEND_OPTIONS.fetch(key, nil) || { label: "Flux non défini", badge_classes: "bg-slate-200 text-slate-600" }
   end
 end

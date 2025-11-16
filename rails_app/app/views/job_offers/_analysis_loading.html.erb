@@ -1,14 +1,22 @@
 <% presenter = local_assigns.fetch(:presenter) { JobOfferPresenter.new(job_offer) } %>
-<section class="space-y-3 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-  <header class="flex items-center justify-between">
-    <h2 class="text-lg font-semibold text-indigo-900">Résumé IA</h2>
-    <span class="inline-flex items-center gap-2 text-xs font-medium text-indigo-700">
-      <span class="h-2 w-2 animate-pulse rounded-full bg-indigo-500"></span>
-      Analyse en cours
+<% selected_backend = local_assigns[:backend] %>
+<% backend_label = presenter.backend_label_for(selected_backend) %>
+<% badge_classes = presenter.backend_badge_classes_for(selected_backend) %>
+<section id="<%= dom_id(job_offer, :analysis) %>" class="space-y-4 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+  <header class="space-y-2">
+    <div class="flex items-center justify-between gap-3">
+      <h2 class="text-lg font-semibold text-indigo-900">Résumé IA</h2>
+      <span class="inline-flex items-center gap-2 text-xs font-medium text-indigo-700">
+        <span class="h-2 w-2 animate-pulse rounded-full bg-indigo-500"></span>
+        Analyse en cours
+      </span>
+    </div>
+    <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold <%= badge_classes %>">
+      <%= backend_label %>
     </span>
   </header>
 
-  <p class="text-sm italic text-slate-500">Nous relançons l'analyse. Les résultats s'afficheront ici automatiquement.</p>
+  <p class="text-sm text-slate-600">Nous relançons l'analyse via <%= backend_label %>. Les résultats s'afficheront ici automatiquement.</p>
 
   <div class="flex items-center gap-3 rounded-lg border border-dashed border-indigo-200 bg-slate-50/60 p-4 text-sm text-slate-600">
     <div class="h-4 w-4 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent"></div>

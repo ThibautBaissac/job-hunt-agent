@@ -9,7 +9,8 @@ Handles:
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
-import os
+
+from agent_api.routers.offer_analysis import router as offer_analysis_router
 
 # Load environment variables from root .env
 load_dotenv(dotenv_path="../../.env")
@@ -45,6 +46,8 @@ async def health():
     """Health check endpoint."""
     return {"status": "ok"}
 
+
+app.include_router(offer_analysis_router)
 
 # TODO: Add routers for:
 # - /agent/job_application (POST)

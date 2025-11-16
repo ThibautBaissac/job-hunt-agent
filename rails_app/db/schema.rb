@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_15_141529) do
+ActiveRecord::Schema[8.1].define(version: 2025_11_15_152100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -61,6 +61,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_15_141529) do
   end
 
   create_table "job_offers", force: :cascade do |t|
+    t.string "analysis_backend"
     t.datetime "analyzed_at"
     t.string "company_name", null: false
     t.string "contract_type"

@@ -28,14 +28,16 @@ class JobOffersController < ApplicationController
   end
 
   def analyze
-    OfferAnalysisJob.perform_later(@job_offer.id)
+    backend = resolve_backend(params[:backend])
+
+    OfferAnalysisJob.perform_later(@job_offer.id, mode: backend)
 
     respond_to do |format|
       format.turbo_stream do
         render turbo_stream: turbo_stream.replace(
           helpers.dom_id(@job_offer, :analysis),
           partial: "job_offers/analysis_loading",
-          locals: { job_offer: @job_offer, presenter: JobOfferPresenter.new(@job_offer) }
+          locals: { job_offer: @job_offer, presenter: JobOfferPresenter.new(@job_offer), backend: backend }
         )
       end
 
@@ -85,5 +87,12 @@ class JobOffersController < ApplicationController
 
   def analysis_stream_name_for(job_offer)
     "job_offer_analysis_#{job_offer.id}"
+  end
+
+  def resolve_backend(param)
+    backend = param.to_s.presence
+    return backend if %w[rails python].include?(backend)
+
+    ENV.fetch("DEFAULT_OFFER_ANALYSIS_BACKEND", "rails")
   end
 end

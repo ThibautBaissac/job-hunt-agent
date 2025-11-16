@@ -24,7 +24,7 @@ RSpec.describe Ai::OfferAnalyzer do
     it "persists the analysis on the job offer" do
       allow(chat).to receive(:ask).and_return(response_message)
 
-      described_class.new(job_offer: job_offer, client: client).call
+      described_class.new(job_offer: job_offer, client: client, backend: :rails).call
 
       job_offer.reload
       expect(job_offer.summary).to eq("Poste de développeur senior Ruby on Rails dans une scale-up.")
@@ -32,6 +32,7 @@ RSpec.describe Ai::OfferAnalyzer do
       expect(job_offer.keywords).to include("télétravail", "scale-up")
       expect(job_offer.seniority_level).to eq("Senior")
       expect(job_offer.analyzed_at).to be_present
+      expect(job_offer.analysis_backend).to eq("rails")
     end
 
     it "handles markdown fences and prose" do
@@ -46,7 +47,7 @@ RSpec.describe Ai::OfferAnalyzer do
 
       allow(chat).to receive(:ask).and_return(fenced_response)
 
-      described_class.new(job_offer: job_offer, client: client).call
+      described_class.new(job_offer: job_offer, client: client, backend: :rails).call
 
       expect(job_offer.reload.summary).to eq("Poste backend")
       expect(job_offer.tech_stack).to eq([ "Ruby" ])
@@ -67,7 +68,7 @@ RSpec.describe Ai::OfferAnalyzer do
         message
       end
 
-      described_class.new(job_offer: job_offer, client: client).call
+      described_class.new(job_offer: job_offer, client: client, backend: :rails).call
 
       job_offer.reload
       expect(job_offer.summary).to eq("Fallback")
@@ -83,7 +84,7 @@ RSpec.describe Ai::OfferAnalyzer do
         response_message
       end
 
-      described_class.new(job_offer: job_offer, client: client, streamer: ->(content) { streamed << content }).call
+      described_class.new(job_offer: job_offer, client: client, streamer: ->(content) { streamed << content }, backend: :rails).call
 
       expect(streamed).to eq([ "token " ])
     end
@@ -92,8 +93,44 @@ RSpec.describe Ai::OfferAnalyzer do
       allow(chat).to receive(:ask).and_return(instance_double(RubyLLM::Message, content: "not-json"))
 
       expect {
-        described_class.new(job_offer: job_offer, client: client).call
+        described_class.new(job_offer: job_offer, client: client, backend: :rails).call
       }.to raise_error(Ai::OfferAnalyzer::Error)
+    end
+
+    context "when backend is python" do
+      let(:connection) { instance_double(Faraday::Connection) }
+      let(:response_body) do
+        {
+          "summary" => "Analyse via Agent API",
+          "tech_stack" => [ "Python", "FastAPI" ],
+          "keywords" => [ "async", "microservice" ],
+          "seniority_level" => "Intermédiaire"
+        }
+      end
+      let(:http_response) { instance_double(Faraday::Response, body: response_body) }
+
+      it "persists the analysis using the agent API" do
+        allow(connection).to receive(:post)
+          .with("/agent/offer_analysis", kind_of(String), "Content-Type" => "application/json")
+          .and_return(http_response)
+
+        described_class.new(job_offer: job_offer, backend: :python, agent_connection: connection).call
+
+        job_offer.reload
+        expect(job_offer.summary).to eq("Analyse via Agent API")
+        expect(job_offer.tech_stack).to eq([ "Python", "FastAPI" ])
+        expect(job_offer.keywords).to eq([ "async", "microservice" ])
+        expect(job_offer.seniority_level).to eq("Intermédiaire")
+        expect(job_offer.analysis_backend).to eq("python")
+      end
+
+      it "wraps Faraday errors" do
+        allow(connection).to receive(:post).and_raise(Faraday::TimeoutError.new("timeout"))
+
+        expect {
+          described_class.new(job_offer: job_offer, backend: :python, agent_connection: connection).call
+        }.to raise_error(Ai::OfferAnalyzer::Error, include("Agent API indisponible"))
+      end
     end
   end
 end

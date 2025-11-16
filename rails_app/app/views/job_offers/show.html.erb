@@ -22,9 +22,7 @@
         <%= turbo_stream_from @analysis_stream_name %>
       <% end %>
 
-      <div id="<%= dom_id(@job_offer, :analysis) %>">
-        <%= render(@presenter.analysis_available? ? "job_offers/analysis_panel" : "job_offers/analysis_empty", job_offer: @job_offer, presenter: @presenter) %>
-      </div>
+      <%= render(@presenter.analysis_available? ? "job_offers/analysis_panel" : "job_offers/analysis_empty", job_offer: @job_offer, presenter: @presenter) %>
 
       <section class="space-y-3 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
         <header>

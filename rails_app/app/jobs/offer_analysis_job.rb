@@ -5,11 +5,18 @@ class OfferAnalysisJob < ApplicationJob
 
   include ActionView::RecordIdentifier
 
-  def perform(job_offer_id)
+  SUPPORTED_BACKENDS = %w[rails python].freeze
+
+  def perform(job_offer_id, mode: nil)
     @job_offer = JobOffer.find(job_offer_id)
     @stream_buffer = +""
+    @backend = normalize_backend(mode)
 
-    Ai::OfferAnalyzer.new(job_offer: @job_offer, streamer: ->(chunk) { handle_stream(chunk) }).call
+    Ai::OfferAnalyzer.new(
+      job_offer: @job_offer,
+      streamer: ->(chunk) { handle_stream(chunk) },
+      backend: @backend
+    ).call
     @job_offer.reload
 
     broadcast_panel(@job_offer)
@@ -18,10 +25,6 @@ class OfferAnalysisJob < ApplicationJob
   end
 
   private
-
-  def stream_name(job_offer)
-    "job_offer_analysis_#{job_offer.id}"
-  end
 
   def handle_stream(chunk)
     return if chunk.blank?
@@ -37,7 +40,9 @@ class OfferAnalysisJob < ApplicationJob
         locals: {
           target_id: dom_id(@job_offer, :analysis_stream),
           raw_content: sanitized_stream(@stream_buffer, analysis&.dig(:raw)),
-          analysis: analysis&.dig(:parsed)
+          analysis: analysis&.dig(:parsed),
+          backend: @backend,
+          presenter: JobOfferPresenter.new(@job_offer)
         }
       )
     )
@@ -49,7 +54,7 @@ class OfferAnalysisJob < ApplicationJob
       target: dom_id(job_offer, :analysis),
       html: ApplicationController.render(
         partial: "job_offers/analysis_panel",
-        locals: { job_offer: job_offer }
+        locals: { job_offer: job_offer, presenter: JobOfferPresenter.new(job_offer) }
       )
     )
   end
@@ -60,7 +65,7 @@ class OfferAnalysisJob < ApplicationJob
       target: dom_id(job_offer, :analysis),
       html: ApplicationController.render(
         partial: "job_offers/analysis_error",
-        locals: { message: message, job_offer: job_offer }
+        locals: { message: message, job_offer: job_offer, presenter: JobOfferPresenter.new(job_offer) }
       )
     )
   end
@@ -103,5 +108,21 @@ class OfferAnalysisJob < ApplicationJob
       hash["summary"] = hash["summary"].to_s
       hash["seniority_level"] = hash["seniority_level"].to_s
     end
+  end
+
+  def stream_name(job_offer)
+    "job_offer_analysis_#{job_offer.id}"
+  end
+
+  def normalize_backend(mode)
+    key = mode.to_s.presence
+    key = default_backend unless SUPPORTED_BACKENDS.include?(key)
+    key = default_backend unless SUPPORTED_BACKENDS.include?(key)
+    key.to_sym
+  end
+
+  def default_backend
+    value = ENV.fetch("DEFAULT_OFFER_ANALYSIS_BACKEND", "rails").to_s
+    SUPPORTED_BACKENDS.include?(value) ? value : "rails"
   end
 end

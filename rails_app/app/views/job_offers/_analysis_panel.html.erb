@@ -1,8 +1,13 @@
 <% presenter = local_assigns.fetch(:presenter) { JobOfferPresenter.new(job_offer) } %>
-<section class="space-y-4 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-  <header class="flex items-center justify-between">
-    <h2 class="text-lg font-semibold text-indigo-900">Résumé IA</h2>
-    <span class="text-xs font-medium text-emerald-600"><%= presenter.analysis_status %></span>
+<section id="<%= dom_id(job_offer, :analysis) %>" class="space-y-4 rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+  <header class="space-y-2">
+    <div class="flex items-center justify-between gap-3">
+      <h2 class="text-lg font-semibold text-indigo-900">Résumé IA</h2>
+      <span class="text-xs font-medium text-emerald-600"><%= presenter.analysis_status %></span>
+    </div>
+    <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold <%= presenter.analysis_backend_badge_classes %>">
+      <%= presenter.analysis_backend_label %>
+    </span>
   </header>
 
   <% if presenter.summary.present? %>
@@ -42,13 +47,7 @@
     </div>
   <% end %>
 
-  <div class="flex flex-wrap items-center justify-end gap-3">
-    <%= button_to "Relancer l'analyse",
-          analyze_job_offer_path(job_offer),
-          method: :post,
-          class: "inline-flex items-center gap-2 rounded-md border border-indigo-200 px-3 py-1.5 text-xs font-semibold text-indigo-900 transition hover:bg-indigo-50",
-          data: { turbo_stream: true } %>
-  </div>
+  <%= render "job_offers/analysis_backend_actions", job_offer: job_offer, presenter: presenter %>
 
   <div id="<%= dom_id(job_offer, :analysis_stream) %>" class="hidden"></div>
 </section>
